@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 ABaseGravityCharacter::ABaseGravityCharacter()
 {
@@ -40,7 +41,19 @@ void ABaseGravityCharacter::BeginPlay()
 void ABaseGravityCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	GetGravityDirection();
+
+	const UWorld* World = GetWorld();
+	if(World)
+	{
+		DrawDebugLine(World, GetActorLocation(), GetActorLocation() + (-GravityV.GetSafeNormal() * 200.f), FColor::Blue);
+		DrawDebugLine(World, GetActorLocation(), GetActorLocation() + (FVector::CrossProduct(-GravityV, GetActorForwardVector()) * 200.f), FColor::Green);
+		DrawDebugLine(World, GetActorLocation(), GetActorLocation() + (FVector::CrossProduct(GravityV,FVector::CrossProduct(-GravityV, GetActorForwardVector()) * 200.f)), FColor::Red);
+	}
+	//NEEDS DOT PRODUCT CHECK TO MAKE SURE WE ARE NOT PERFECTLY GOING WITH OR AGAINST OUR CURRENT FORWARD VECTOR
+	FMatrix OrientToGravity(FVector::CrossProduct(GravityV.GetSafeNormal(),FVector::CrossProduct(-GravityV.GetSafeNormal(), GetActorForwardVector())),
+		FVector::CrossProduct(-GravityV.GetSafeNormal(), GetActorForwardVector()),
+		-GravityV.GetSafeNormal(), FVector::ZeroVector);
+	SetActorRotation(OrientToGravity.ToQuat());
 }
 
 void ABaseGravityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -63,7 +76,7 @@ void ABaseGravityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 void ABaseGravityCharacter::Move(const FInputActionValue& ActionValue)
 {
 	const FVector2D Value = ActionValue.Get<FVector2D>();
-	AddMovementInput(GetActorForwardVector(),  Value.Y);
+	AddMovementInput(GetActorForwardVector(), Value.Y);
 	AddMovementInput(GetActorRightVector(), Value.X);
 	
 }
@@ -71,7 +84,7 @@ void ABaseGravityCharacter::Move(const FInputActionValue& ActionValue)
 void ABaseGravityCharacter::Look(const FInputActionValue& ActionValue)
 {
 	const FVector2D Value = ActionValue.Get<FVector2D>();
-	AddControllerPitchInput(-Value.Y);
+	AddControllerPitchInput(Value.Y);
 	AddControllerYawInput(Value.X);
 }
 

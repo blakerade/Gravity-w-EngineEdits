@@ -119,8 +119,16 @@ bool APhysicsVolume::IsOverlapInVolume(const class USceneComponent& TestComponen
 //Changed by Blake Richards
 FVector APhysicsVolume::GetGravityV() const
 {
-	const UWorld* MyWorld = GetWorld();
-	return MyWorld ? MyWorld->GetGravityV() : UPhysicsSettings::Get()->DefaultGravityV;
+	if(AActor* MyActer = GetOwner())
+	{
+		return MyActer->GravityV;
+	}
+	else
+	{
+		return FVector::ZeroVector;
+	}
+	// const UWorld* MyWorld = GetWorld();
+	// return MyWorld ? MyWorld->GetGravityV() : UPhysicsSettings::Get()->DefaultGravityV;
 }
 
 void APhysicsVolume::ActorEnteredVolume(AActor* Other) {}
