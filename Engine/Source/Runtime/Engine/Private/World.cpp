@@ -5540,8 +5540,9 @@ UModel* UWorld::GetModel() const
 //Changed by Blake Richards
 FVector UWorld::GetGravityV() const
 {
-	AWorldSettings* WorldSettings = GetWorldSettings();
-	return (WorldSettings != NULL) ? WorldSettings->GetGravityV() : FVector::ZeroVector;
+	// AWorldSettings* WorldSettings = GetWorldSettings();
+	// return (WorldSettings != NULL) ? WorldSettings->GetGravityV() : FVector::ZeroVector;
+ 	return FVector(0.f, 0.f, 980.f);
 }
 
 //Changed by Blake Richards

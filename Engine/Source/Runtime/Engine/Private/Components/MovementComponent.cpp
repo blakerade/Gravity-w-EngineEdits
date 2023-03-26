@@ -374,7 +374,7 @@ FVector UMovementComponent::GetGravityV() const
 {
 	// APhysicsVolume* PhysicsVolume = GetPhysicsVolume();
 	// return PhysicsVolume ? PhysicsVolume->GetGravityV() : UPhysicsSettings::Get()->DefaultGravityV;
-	return FVector(0.f, 0.f, 980.f);
+	return GetOwner()->GravityV;
 }
 
 void UMovementComponent::HandleImpact(const FHitResult& Hit, float TimeSlice, const FVector& MoveDelta)

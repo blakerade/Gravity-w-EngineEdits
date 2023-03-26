@@ -1071,6 +1071,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category=Actor)
 	TArray<FName> Tags;
 
+	//Added by Blake Richards
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gravity)
+	FVector GravityV = FVector(0.f, 0.f, 0.f);
 
 	//~==============================================================================================
 	// Delegates
