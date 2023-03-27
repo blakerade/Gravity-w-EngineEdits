@@ -20,7 +20,7 @@ public:
 	ABaseGravityCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -41,6 +41,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere)
+	UInputAction* RotateAction;
+	UPROPERTY(EditAnywhere)
 	UInputMappingContext* CharacterMovementMapping;
 
 	//Input Functions
@@ -48,6 +50,7 @@ protected:
 	void Look(const FInputActionValue& ActionValue);
 	void JumpButtonPressed(const FInputActionValue& ActionValue);
 	void CrouchButtonPressed(const FInputActionValue& ActionValue);
+	void RotateToGravity(const FInputActionValue& ActionValue);
 	
 private:
 	
