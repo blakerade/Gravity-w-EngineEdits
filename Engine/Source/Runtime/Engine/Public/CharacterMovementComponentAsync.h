@@ -71,7 +71,8 @@ public:
 	/** Returns true if the floor result hit a walkable surface. */
 	bool IsWalkableFloor() const
 	{
-		return bBlockingHit && bWalkableFloor;
+		//Changed by Blake Richards
+		return bBlockingHit /*&& bWalkableFloor*/;
 	}
 
 	void Clear()

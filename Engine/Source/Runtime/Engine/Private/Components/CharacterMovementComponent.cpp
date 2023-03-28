@@ -6393,7 +6393,8 @@ void UCharacterMovementComponent::ComputeFloorDist(const FVector& CapsuleLocatio
 		FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(SweepRadius, PawnHalfHeight - ShrinkHeight);
 
 		FHitResult Hit(1.f);
-		bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + FVector(0.f,0.f,-TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
+		//Changed by Blake Richards
+		bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + (GetGravityV().GetSafeNormal() * TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 
 		if (bBlockingHit)
 		{
@@ -6410,8 +6411,8 @@ void UCharacterMovementComponent::ComputeFloorDist(const FVector& CapsuleLocatio
 					TraceDist = SweepDistance + ShrinkHeight;
 					CapsuleShape.Capsule.HalfHeight = FMath::Max(PawnHalfHeight - ShrinkHeight, CapsuleShape.Capsule.Radius);
 					Hit.Reset(1.f, false);
-
-					bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + FVector(0.f,0.f,-TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
+					//Changed by Blake Richards
+					bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + (GetGravityV().GetSafeNormal() * TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 				}
 			}
 
