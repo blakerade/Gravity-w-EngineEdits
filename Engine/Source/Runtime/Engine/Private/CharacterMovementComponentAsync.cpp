@@ -1976,7 +1976,8 @@ void FCharacterMovementComponentAsyncInput::ComputeFloorDist(const FVector& Caps
 		const float ShrinkHeight = PawnHalfHeight;
 		const FVector LineTraceStart = CapsuleLocation;
 		const float TraceDist = LineDistance + ShrinkHeight;
-		const FVector Down = FVector(0.f, 0.f, -TraceDist);
+		//Changed by Blake Richards
+		const FVector Down = GravityV.GetSafeNormal() * TraceDist;
 		//QueryParams.TraceTag = SCENE_QUERY_STAT_NAME_ONLY(FloorLineTrace); TODO
 
 		FHitResult Hit(1.f);
@@ -2051,11 +2052,11 @@ bool FCharacterMovementComponentAsyncInput::IsWalkable(const FHitResult& Hit) co
 		return false;
 	}
 
-	// Never walk up vertical surfaces.
-	if (Hit.ImpactNormal.Z < UE_KINDA_SMALL_NUMBER)
-	{
-		return false;
-	}
+	// // Never walk up vertical surfaces. //Commented out by Blake Richards
+	// if (Hit.ImpactNormal.Z < UE_KINDA_SMALL_NUMBER)
+	// {
+	// 	return false;
+	// }
 
 	// todo, how to read walkable slope override off hit component?
 	float TestWalkableZ = WalkableFloorZ;
@@ -2070,11 +2071,11 @@ bool FCharacterMovementComponentAsyncInput::IsWalkable(const FHitResult& Hit) co
 		TestWalkableZ = SlopeOverride.ModifyWalkableFloorZ(TestWalkableZ);
 	}*/
 
-	// Can't walk on this surface if it is too steep.
-	if (Hit.ImpactNormal.Z < TestWalkableZ)
-	{
-		return false;
-	}
+	// Can't walk on this surface if it is too steep. //Commented out by Blake Richards
+	// if (Hit.ImpactNormal.Z < TestWalkableZ)
+	// {
+	// 	return false;
+	// }
 
 	return true;
 }

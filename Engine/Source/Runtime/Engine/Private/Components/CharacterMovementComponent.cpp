@@ -4387,12 +4387,12 @@ float UCharacterMovementComponent::BoostAirControl(float DeltaTime, float TickAi
 void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 {
 	SCOPE_CYCLE_COUNTER(STAT_CharPhysFalling);
-
+	UE_LOG(LogTemp, Warning, TEXT("FALLING: 1"));
 	if (deltaTime < MIN_TICK_TIME)
 	{
 		return;
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("FALLING: 2"));
 	FVector FallAcceleration = GetFallingLateralAcceleration(deltaTime);
 	FallAcceleration.Z = 0.f;
 	const bool bHasLimitedAirControl = ShouldLimitAirControl(deltaTime, FallAcceleration);
@@ -4517,7 +4517,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		{
 			return;
 		}
-		
+		UE_LOG(LogTemp, Warning, TEXT("FALLING: 3"));
 		float LastMoveTimeSlice = timeTick;
 		float subTimeTickRemaining = timeTick * (1.f - Hit.Time);
 		
@@ -4529,14 +4529,17 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		}
 		else if ( Hit.bBlockingHit )
 		{
+			UE_LOG(LogTemp, Warning, TEXT("FALLING: 4"));
 			if (IsValidLandingSpot(UpdatedComponent->GetComponentLocation(), Hit))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("FALLING: 4A"));
 				remainingTime += subTimeTickRemaining;
 				ProcessLanded(Hit, remainingTime, Iterations);
 				return;
 			}
 			else
 			{
+				UE_LOG(LogTemp, Warning, TEXT("FALLING: 5"));
 				// Compute impact deflection based on final velocity, not integration step.
 				// This allows us to compute a new velocity from the deflected vector, and ensures the full gravity effect is included in the slide result.
 				Adjusted = Velocity * timeTick;
@@ -4544,15 +4547,18 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				// See if we can convert a normally invalid landing spot (based on the hit result) to a usable one.
 				if (!Hit.bStartPenetrating && ShouldCheckForValidLandingSpot(timeTick, Adjusted, Hit))
 				{
+					UE_LOG(LogTemp, Warning, TEXT("FALLING: 5A"));
 					const FVector PawnLocation = UpdatedComponent->GetComponentLocation();
 					FFindFloorResult FloorResult;
 					FindFloor(PawnLocation, FloorResult, false);
 					if (FloorResult.IsWalkableFloor() && IsValidLandingSpot(PawnLocation, FloorResult.HitResult))
 					{
+						UE_LOG(LogTemp, Warning, TEXT("FALLING: 5B"));
 						remainingTime += subTimeTickRemaining;
 						ProcessLanded(FloorResult.HitResult, remainingTime, Iterations);
 						return;
 					}
+					UE_LOG(LogTemp, Warning, TEXT("FALLING: 6"));
 				}
 
 				HandleImpact(Hit, LastMoveTimeSlice, Adjusted);
@@ -4562,6 +4568,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				{
 					return;
 				}
+				UE_LOG(LogTemp, Warning, TEXT("FALLING: 7"));
 
 				// Limit air control based on what we hit.
 				// We moved to the impact point using air control, but may want to deflect from there based on a limited air control acceleration.
@@ -4621,7 +4628,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 							ProcessLanded(Hit, remainingTime, Iterations);
 							return;
 						}
-
+						UE_LOG(LogTemp, Warning, TEXT("FALLING: 8"));
 						HandleImpact(Hit, LastMoveTimeSlice, Delta);
 
 						// If we've changed physics mode, abort.
@@ -4629,7 +4636,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 						{
 							return;
 						}
-
+						UE_LOG(LogTemp, Warning, TEXT("FALLING: 9"));
 						// Act as if there was no air control on the last move when computing new deflection.
 						if (bHasLimitedAirControl && Hit.Normal.Z > CharacterMovementConstants::VERTICAL_SLOPE_NORMAL_Z)
 						{
@@ -4682,6 +4689,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 						}
 						else if (GetPerchRadiusThreshold() > 0.f && Hit.Time == 1.f && OldHitImpactNormal.Z >= WalkableFloorZ)
 						{
+							UE_LOG(LogTemp, Warning, TEXT("FALLING: 10"));
 							// We might be in a virtual 'ditch' within our perch radius. This is rare.
 							const FVector PawnLocation = UpdatedComponent->GetComponentLocation();
 							const float ZMovedDist = FMath::Abs(PawnLocation.Z - OldLocation.Z);
@@ -4699,7 +4707,7 @@ void UCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				}
 			}
 		}
-
+		UE_LOG(LogTemp, Warning, TEXT("FALLING: 11"));
 		if (Velocity.SizeSquared2D() <= UE_KINDA_SMALL_NUMBER * 10.f)
 		{
 			Velocity.X = 0.f;
@@ -5041,7 +5049,7 @@ void UCharacterMovementComponent::MaintainHorizontalGroundVelocity()
 void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 {
 	SCOPE_CYCLE_COUNTER(STAT_CharPhysWalking);
-
+	UE_LOG(LogTemp, Warning, TEXT("WALKING: 1"));
 	if (deltaTime < MIN_TICK_TIME)
 	{
 		return;
@@ -5049,6 +5057,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 
 	if (!CharacterOwner || (!CharacterOwner->Controller && !bRunPhysicsWithNoController && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() && (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 2"));
 		Acceleration = FVector::ZeroVector;
 		Velocity = FVector::ZeroVector;
 		return;
@@ -5056,6 +5065,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 
 	if (!UpdatedComponent->IsQueryCollisionEnabled())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 3"));
 		SetMovementMode(MOVE_Walking);
 		return;
 	}
@@ -5066,7 +5076,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 	bool bCheckedFall = false;
 	bool bTriedLedgeMove = false;
 	float remainingTime = deltaTime;
-
+	UE_LOG(LogTemp, Warning, TEXT("WALKING: 4"));
 	// Perform the move
 	while ( (remainingTime >= MIN_TICK_TIME) && (Iterations < MaxSimulationIterations) && CharacterOwner && (CharacterOwner->Controller || bRunPhysicsWithNoController || HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity() || (CharacterOwner->GetLocalRole() == ROLE_SimulatedProxy)) )
 	{
@@ -5087,25 +5097,27 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 		MaintainHorizontalGroundVelocity();
 		const FVector OldVelocity = Velocity;
 		Acceleration.Z = 0.f;
-
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 5"));
 		// Apply acceleration
 		if( !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 6"));
 			CalcVelocity(timeTick, GroundFriction, false, GetMaxBrakingDeceleration());
 			devCode(ensureMsgf(!Velocity.ContainsNaN(), TEXT("PhysWalking: Velocity contains NaN after CalcVelocity (%s)\n%s"), *GetPathNameSafe(this), *Velocity.ToString()));
 		}
 		
 		ApplyRootMotionToVelocity(timeTick);
 		devCode(ensureMsgf(!Velocity.ContainsNaN(), TEXT("PhysWalking: Velocity contains NaN after Root Motion application (%s)\n%s"), *GetPathNameSafe(this), *Velocity.ToString()));
-
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 7"));
 		if( IsFalling() )
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 8"));
 			// Root motion could have put us into Falling.
 			// No movement has taken place this movement tick so we pass on full time/past iteration count
 			StartNewPhysics(remainingTime+timeTick, Iterations-1);
 			return;
 		}
-
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 9"));
 		// Compute move parameters
 		const FVector MoveVelocity = Velocity;
 		const FVector Delta = timeTick * MoveVelocity;
@@ -5120,7 +5132,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 		{
 			// try to move forward
 			MoveAlongFloor(MoveVelocity, timeTick, &StepDownResult);
-
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 10"));
 			if ( IsFalling() )
 			{
 				// pawn decided to jump up
@@ -5130,6 +5142,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 					const float ActualDist = (UpdatedComponent->GetComponentLocation() - OldLocation).Size2D();
 					remainingTime += timeTick * (1.f - FMath::Min(1.f,ActualDist/DesiredDist));
 				}
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: 11"));
 				StartNewPhysics(remainingTime,Iterations);
 				return;
 			}
@@ -5139,27 +5152,31 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 				return;
 			}
 		}
-
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 12"));
 		// Update floor.
 		// StepUp might have already done it for us.
 		if (StepDownResult.bComputedFloor)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 13"));
 			CurrentFloor = StepDownResult.FloorResult;
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 14"));
 			FindFloor(UpdatedComponent->GetComponentLocation(), CurrentFloor, bZeroDelta, NULL);
 		}
-
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 15"));
 		// check for ledges here
 		const bool bCheckLedges = !CanWalkOffLedges();
 		if ( bCheckLedges && !CurrentFloor.IsWalkableFloor() )
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 16"));
 			// calculate possible alternate movement
 			const FVector GravDir = FVector(0.f,0.f,-1.f);
 			const FVector NewDelta = bTriedLedgeMove ? FVector::ZeroVector : GetLedgeMove(OldLocation, Delta, GravDir);
 			if ( !NewDelta.IsZero() )
 			{
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: 17"));
 				// first revert this move
 				RevertMove(OldLocation, OldBase, PreviousBaseLocation, OldFloor, false);
 
@@ -5173,11 +5190,13 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 			}
 			else
 			{
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: 18"));
 				// see if it is OK to jump
 				// @todo collision : only thing that can be problem is that oldbase has world collision on
 				bool bMustJump = bZeroDelta || (OldBase == NULL || (!OldBase->IsQueryCollisionEnabled() && MovementBaseUtility::IsDynamicBase(OldBase)));
 				if ( (bMustJump || !bCheckedFall) && CheckFall(OldFloor, CurrentFloor.HitResult, Delta, OldLocation, remainingTime, timeTick, Iterations, bMustJump) )
 				{
+					UE_LOG(LogTemp, Warning, TEXT("WALKING: 19"));
 					return;
 				}
 				bCheckedFall = true;
@@ -5190,6 +5209,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: A"));
 			// Validate the floor check
 			if (CurrentFloor.IsWalkableFloor())
 			{
@@ -5201,14 +5221,16 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 						// If still walking, then fall. If not, assume the user set a different mode they want to keep.
 						StartFalling(Iterations, remainingTime, timeTick, Delta, OldLocation);
 					}
+					UE_LOG(LogTemp, Warning, TEXT("WALKING: 20"));
 					return;
 				}
-
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: 21"));
 				AdjustFloorHeight();
 				SetBase(CurrentFloor.HitResult.Component.Get(), CurrentFloor.HitResult.BoneName);
 			}
 			else if (CurrentFloor.HitResult.bStartPenetrating && remainingTime <= 0.f)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: B"));
 				// The floor check failed because it started in penetration
 				// We do not want to try to move downward because the downward sweep failed, rather we'd like to try to pop out of the floor.
 				FHitResult Hit(CurrentFloor.HitResult);
@@ -5217,7 +5239,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 				ResolvePenetration(RequestedAdjustment, Hit, UpdatedComponent->GetComponentQuat());
 				bForceNextFloorCheck = true;
 			}
-
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: C"));
 			// check if just entered water
 			if ( IsSwimming() )
 			{
@@ -5228,12 +5250,14 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 			// See if we need to start falling.
 			if (!CurrentFloor.IsWalkableFloor() && !CurrentFloor.HitResult.bStartPenetrating)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: D"));
 				const bool bMustJump = bJustTeleported || bZeroDelta || (OldBase == NULL || (!OldBase->IsQueryCollisionEnabled() && MovementBaseUtility::IsDynamicBase(OldBase)));
 				if ((bMustJump || !bCheckedFall) && CheckFall(OldFloor, CurrentFloor.HitResult, Delta, OldLocation, remainingTime, timeTick, Iterations, bMustJump) )
 				{
 					return;
 				}
 				bCheckedFall = true;
+				UE_LOG(LogTemp, Warning, TEXT("WALKING: 22"));
 			}
 		}
 
@@ -5248,6 +5272,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 				Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / timeTick;
 				MaintainHorizontalGroundVelocity();
 			}
+			UE_LOG(LogTemp, Warning, TEXT("WALKING: 23"));
 		}
 
 		// If we didn't move at all this iteration then abort (since future iterations will also be stuck).
@@ -5260,6 +5285,7 @@ void UCharacterMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 
 	if (IsMovingOnGround())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WALKING: 24"));
 		MaintainHorizontalGroundVelocity();
 	}
 }
@@ -5695,39 +5721,45 @@ void UCharacterMovementComponent::StopActiveMovement()
 void UCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)
 {
 	SCOPE_CYCLE_COUNTER(STAT_CharProcessLanded);
-
+	UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 1"));
 	if( CharacterOwner && CharacterOwner->ShouldNotifyLanded(Hit) )
 	{
 		CharacterOwner->Landed(Hit);
+		UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 2"));
 	}
 	if( IsFalling() )
 	{
+		UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 3"));
 		if (GroundMovementMode == MOVE_NavWalking)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 4"));
 			// verify navmesh projection and current floor
 			// otherwise movement will be stuck in infinite loop:
 			// navwalking -> (no navmesh) -> falling -> (standing on something) -> navwalking -> ....
 
+			//GetActorFeetLocation Changed by Blake Richards
 			const FVector TestLocation = GetActorFeetLocation();
 			FNavLocation NavLocation;
 
 			const bool bHasNavigationData = FindNavFloor(TestLocation, NavLocation);
 			if (!bHasNavigationData || NavLocation.NodeRef == INVALID_NAVNODEREF)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 5"));
 				GroundMovementMode = MOVE_Walking;
 				UE_LOG(LogNavMeshMovement, Verbose, TEXT("ProcessLanded(): %s tried to go to NavWalking but couldn't find NavMesh! Using Walking instead."), *GetNameSafe(CharacterOwner));
 			}
 		}
-
+		UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 6"));
 		SetPostLandedPhysics(Hit);
 	}
-	
+	UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 7"));
 	IPathFollowingAgentInterface* PFAgent = GetPathFollowingAgent();
 	if (PFAgent)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 8"));
 		PFAgent->OnLanded();
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("PROCESSLANDED: 9"));
 	StartNewPhysics(remainingTime, Iterations);
 }
 
@@ -6610,6 +6642,7 @@ bool UCharacterMovementComponent::FloorSweepTest(
 
 bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocation, const FHitResult& Hit) const
 {
+	//Commenting out basically the entire function to almost always return true, and trouble shoot from there
 	if (!Hit.bBlockingHit)
 	{
 		return false;
@@ -6618,21 +6651,21 @@ bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocat
 	// Skip some checks if penetrating. Penetration will be handled by the FindFloor call (using a smaller capsule)
 	if (!Hit.bStartPenetrating)
 	{
-		// Reject unwalkable floor normals.
-		if (!IsWalkable(Hit))
-		{
-			return false;
-		}
+		// Reject unwalkable floor normals. 
+		// if (!IsWalkable(Hit))
+		// {
+		// 	return false;
+		// }
 
 		float PawnRadius, PawnHalfHeight;
 		CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
-		// Reject hits that are above our lower hemisphere (can happen when sliding down a vertical surface).
-		const float LowerHemisphereZ = Hit.Location.Z - PawnHalfHeight + PawnRadius;
-		if (Hit.ImpactPoint.Z >= LowerHemisphereZ)
-		{
-			return false;
-		}
+		// // Reject hits that are above our lower hemisphere (can happen when sliding down a vertical surface).
+		// const float LowerHemisphereZ = Hit.Location.Z - PawnHalfHeight + PawnRadius;
+		// if (Hit.ImpactPoint.Z >= LowerHemisphereZ)
+		// {
+		// 	return false;
+		// }
 
 		// Reject hits that are barely on the cusp of the radius of the capsule
 		if (!IsWithinEdgeTolerance(Hit.Location, Hit.ImpactPoint, PawnRadius))
@@ -6640,23 +6673,23 @@ bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocat
 			return false;
 		}
 	}
-	else
-	{
-		// Penetrating
-		if (Hit.Normal.Z < UE_KINDA_SMALL_NUMBER)
-		{
-			// Normal is nearly horizontal or downward, that's a penetration adjustment next to a vertical or overhanging wall. Don't pop to the floor.
-			return false;
-		}
-	}
-
-	FFindFloorResult FloorResult;
-	FindFloor(CapsuleLocation, FloorResult, false, &Hit);
-
-	if (!FloorResult.IsWalkableFloor())
-	{
-		return false;
-	}
+	// else
+	// {
+		// // Penetrating
+		// if (Hit.Normal.Z < UE_KINDA_SMALL_NUMBER)
+		// {
+		// 	// Normal is nearly horizontal or downward, that's a penetration adjustment next to a vertical or overhanging wall. Don't pop to the floor.
+		// 	return false;
+		// }
+	// }
+	//
+	// FFindFloorResult FloorResult;
+	// FindFloor(CapsuleLocation, FloorResult, false, &Hit);
+	//
+	// if (!FloorResult.IsWalkableFloor())
+	// {
+	// 	return false;
+	// }
 
 	return true;
 }
