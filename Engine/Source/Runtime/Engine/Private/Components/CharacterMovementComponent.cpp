@@ -958,12 +958,12 @@ bool UCharacterMovementComponent::DoJump(bool bReplayingMoves)
 		// Don't jump if we can't move up/down.
 		if (!bConstrainToPlane || FMath::Abs(PlaneConstraintNormal.Z) != 1.f)
 		{
-			Velocity.Z = FMath::Max<FVector::FReal>(Velocity.Z, JumpZVelocity);
+			//Changed by Blake Richards
+			Velocity += -GetGravityV().GetSafeNormal() * JumpZVelocity;
 			SetMovementMode(MOVE_Falling);
 			return true;
 		}
 	}
-	
 	return false;
 }
 

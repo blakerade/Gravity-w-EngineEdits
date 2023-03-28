@@ -104,7 +104,7 @@ void ABaseGravityCharacter::RotateToGravity(const FInputActionValue& ActionValue
 		FVector NormGravity = GravityV;
 		NormGravity.Normalize();
 		FMatrix TargetRotation = FMatrix(FVector::CrossProduct(NormGravity, FVector::RightVector), FVector::RightVector, -NormGravity, FVector::ZeroVector);
-		FRotator OrientToGravity = FMath::RInterpTo(GetActorRotation(), TargetRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 1.f);
+		FRotator OrientToGravity = FMath::RInterpTo(GetActorRotation(), TargetRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 3.f);
 		SetActorRotation(OrientToGravity);
 	}
 	else
@@ -118,7 +118,7 @@ void ABaseGravityCharacter::RotateToGravity(const FInputActionValue& ActionValue
 		FVector::CrossProduct(NormGravity, FVector::UpVector),
 		-NormGravity,
 		FVector::ZeroVector);
-		FRotator OrientToGravity = FMath::RInterpTo(GetActorRotation(), TargetRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 1.f);
+		FRotator OrientToGravity = FMath::RInterpTo(GetActorRotation(), TargetRotation.Rotator(), GetWorld()->DeltaTimeSeconds, 3.f);
 		SetActorRotation(OrientToGravity);
 	}
 	

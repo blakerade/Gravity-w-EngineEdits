@@ -1062,6 +1062,7 @@ void ACharacter::CheckJumpInput(float DeltaTime)
 	{
 		if (bPressedJump)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("JUMP: 2"));
 			// If this is the first jump and we're already falling,
 			// then increment the JumpCount to compensate.
 			const bool bFirstJump = JumpCurrentCount == 0;
