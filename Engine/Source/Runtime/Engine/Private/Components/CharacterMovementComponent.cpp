@@ -6643,23 +6643,23 @@ bool UCharacterMovementComponent::FloorSweepTest(
 
 bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocation, const FHitResult& Hit) const
 {
-	//Commenting out basically the entire function to almost always return true, and trouble shoot from there
+	//Commenting out basically the entire function to almost always return true -Blake Richards
 	if (!Hit.bBlockingHit)
 	{
 		return false;
 	}
 
 	// Skip some checks if penetrating. Penetration will be handled by the FindFloor call (using a smaller capsule)
-	if (!Hit.bStartPenetrating)
-	{
+	// if (!Hit.bStartPenetrating)
+	// {
 		// Reject unwalkable floor normals. 
 		// if (!IsWalkable(Hit))
 		// {
 		// 	return false;
 		// }
 
-		float PawnRadius, PawnHalfHeight;
-		CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
+		// float PawnRadius, PawnHalfHeight;
+		// CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
 		// // Reject hits that are above our lower hemisphere (can happen when sliding down a vertical surface).
 		// const float LowerHemisphereZ = Hit.Location.Z - PawnHalfHeight + PawnRadius;
@@ -6669,11 +6669,11 @@ bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocat
 		// }
 
 		// Reject hits that are barely on the cusp of the radius of the capsule
-		if (!IsWithinEdgeTolerance(Hit.Location, Hit.ImpactPoint, PawnRadius))
-		{
-			return false;
-		}
-	}
+		// if (!IsWithinEdgeTolerance(Hit.Location, Hit.ImpactPoint, PawnRadius))
+		// {
+		// 	return false;
+		// }
+	// }
 	// else
 	// {
 		// // Penetrating
@@ -6691,7 +6691,6 @@ bool UCharacterMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocat
 	// {
 	// 	return false;
 	// }
-
 	return true;
 }
 
